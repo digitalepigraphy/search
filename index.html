@@ -1399,7 +1399,7 @@
     }
 
     var total = state.records.length;
-    els.meta.textContent = "Showing " + matches.length + " of " + total + " record" + (total === 1 ? "" : "s") +
+    els.meta.textContent = "Showing " + matches.length +  " record" + (matches.length === 1 ? "" : "s") +
       " for “" + query + "”.";
   }
 
@@ -1557,10 +1557,10 @@
     els.title.textContent = "Digital Epigraphy Archive";
     document.title = "Digital Epigraphy Archive — Search";
     if (els.metaDescription) {
-      els.metaDescription.setAttribute("content", "Search " + allRecords.length + " digitized records across the Digital Epigraphy and Archaeology Project's " + collections.length + " collections.");
+      //els.metaDescription.setAttribute("content", "Search " + allRecords.length + " digitized records across the Digital Epigraphy and Archaeology Project's " + collections.length + " collections.");
     }
-    els.footerCredit.textContent = allRecords.length + " digitized records across " + collections.length +
-      " collections · click a record for details, with a link through to the 3D viewer.";
+    //els.footerCredit.textContent = allRecords.length + " digitized records across " + collections.length +
+    //  " collections · click a record for details, with a link through to the 3D viewer.";
 
     if (failed.length) {
       showWarning("Couldn’t load: " + failed.join(", ") + ". Showing the remaining collections.");
