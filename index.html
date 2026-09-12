@@ -1570,6 +1570,12 @@
     initTryRow();
     initGrid();
     initLightbox();
+    var query = new URLSearchParams(window.location.search).get("q");
+    if (query) {
+      state.query = query;
+      els.input.value = query;
+      els.clearBtn.classList.add("is-visible");
+    }
     render();
     els.input.focus({ preventScroll: true });
   }
