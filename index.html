@@ -549,13 +549,19 @@
     background: var(--bg-alt);
     color: var(--ink);
   }
+  .share-dialog__actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    margin-top: 1rem;
+  }
+  .share-dialog__copy svg{ width: 16px; height: 16px; flex: none; }
   .share-dialog__copy{
     all: unset;
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     gap: .55rem;
-    margin-top: 1rem;
     font-family: var(--font-ui);
     font-weight: 600;
     font-size: .9rem;
@@ -976,10 +982,20 @@
     </button>
     <h3 id="share-dialog-title">Share it as</h3>
     <textarea class="share-dialog__text" id="share-dialog-text" rows="3" readonly></textarea>
-    <button type="button" class="share-dialog__copy" id="share-dialog-copy">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
-      <span>Copy</span>
-    </button>
+    <div class="share-dialog__actions">
+      <button type="button" class="share-dialog__copy" id="share-dialog-copy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
+        <span>Copy</span>
+      </button>
+      <button type="button" class="share-dialog__copy" id="share-dialog-copy-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        <span>Copy Link</span>
+      </button>
+      <a class="share-dialog__copy" id="share-dialog-visit" href="#" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14L21 3"></path><path d="M21 14v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h6"></path></svg>
+        <span>Visit Link</span>
+      </a>
+    </div>
     <p class="share-dialog__status" id="share-dialog-status" role="status" aria-live="polite"></p>
   </div>
 </div>
@@ -1035,6 +1051,8 @@
     shareDialogClose: document.getElementById("share-dialog-close"),
     shareText: document.getElementById("share-dialog-text"),
     shareCopy: document.getElementById("share-dialog-copy"),
+    shareCopyLink: document.getElementById("share-dialog-copy-link"),
+    shareVisit: document.getElementById("share-dialog-visit"),
     shareStatus: document.getElementById("share-dialog-status")
   };
 
@@ -1664,20 +1682,26 @@
     return "";
   }
 
-  function buildShareText(entry){
+  function buildShareLink(entry){
     var base = collectionBaseUrl(entry.collection);
-    var link = base ? base + "?q=" + encodeURIComponent(entry.id) : "";
+    return base ? base + "?q=" + encodeURIComponent(entry.id) : "";
+  }
+
+  function buildShareText(entry, link){
     return [entry.id, entry.collectionLabel, "Digital Epigraphy Archive", link]
       .filter(Boolean)
       .join(", ");
   }
 
   var shareLastFocused = null;
+  var shareCurrentLink = "";
 
   function openShareDialog(entry){
     if (!els.shareDialog || !els.shareText) return;
     shareLastFocused = document.activeElement;
-    els.shareText.value = buildShareText(entry);
+    shareCurrentLink = buildShareLink(entry);
+    els.shareText.value = buildShareText(entry, shareCurrentLink);
+    if (els.shareVisit) els.shareVisit.href = shareCurrentLink || "#";
     els.shareStatus.textContent = "";
     els.shareDialog.hidden = false;
     document.body.classList.add("share-dialog-open");
@@ -1704,11 +1728,10 @@
     window.addEventListener("keydown", function(e){
       if (e.key === "Escape" && !els.shareDialog.hidden) closeShareDialog();
     });
-    els.shareCopy.addEventListener("click", function(){
-      var text = els.shareText.value;
+    function copyText(text, successMessage){
       function reportResult(ok){
         els.shareStatus.textContent = ok
-          ? "Copied to clipboard."
+          ? successMessage
           : "Couldn't copy automatically — the text above is selected, copy it with Ctrl/Cmd+C.";
       }
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1722,7 +1745,15 @@
         try { copied = document.execCommand("copy"); } catch (err) { copied = false; }
         reportResult(copied);
       }
+    }
+    els.shareCopy.addEventListener("click", function(){
+      copyText(els.shareText.value, "Copied to clipboard.");
     });
+    if (els.shareCopyLink) {
+      els.shareCopyLink.addEventListener("click", function(){
+        copyText(shareCurrentLink, "Link copied to clipboard.");
+      });
+    }
   }
 
   function initGrid(){
