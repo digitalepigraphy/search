@@ -1,0 +1,10 @@
+[
+  {
+    "prompt": "What can I search for?",
+    "response": "You can search by place, language, editor, collection, or words from the inscription text itself. Greek and Latin text works too, for example Χαιρε.\n\nResults update as you type, so try a few short terms and refine from there."
+  },
+  {
+    "prompt": "Can I generate and download 3D models?",
+    "response": "Yes. Open a record and use the Download 3D button to generate and download the model file for that inscription. Please cite the project when you use the data."
+  }
+]
